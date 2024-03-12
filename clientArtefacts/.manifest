@@ -1,0 +1,12 @@
+audit_logs.rotate
+Makefile
+README.md
+README.rpmbuild
+README.rules
+ReleaseNotes.txt
+stroom_auditd.crontab.base
+stroom_auditd_feeder.config.base
+stroom_auditd_feeder.sh.base
+stroom_auditd_shutdown.init.d.base
+stroom_auditd_shutdown.service.base
+stroom_auditd.spec

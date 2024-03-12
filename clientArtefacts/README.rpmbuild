@@ -1,0 +1,86 @@
+Last Update: 06 Dec 2023 Burn Alting, burn.alting@gmail.com
+- Uplift to latest version of the agent and newer Redhat releases
+
+Last Update: 22 May 2017 Burn Alting
+
+This is a README describing how deploy a simple rpmbuild system for this stroom_audit_agent capability.
+
+To create an rpm
+
+- Install minimal system and yum update (and reboot if new kernel)
+- Install packages
+  sudo yum -y install audit-libs-devel rpm-build redhat-rpm-config make
+- Create an rpm build environment which includes the directory tree
+    mkdir -p ~/rpmbuild/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
+    echo '%_topdir %(echo $HOME)/rpmbuild' > ~/.rpmmacros
+
+- cp stroom_auditd.spec to rpmbuildroot/SPECS
+- cp stroom_auditd_agent-x.y.z.tar.gz to rpmbuildroot/SOURCES
+- cd ~/rpmbuild
+
+To cycle through a development process, the following function will build
+a number of standard targets (el7, el8 and el9). Note, you should change the cd command to change
+to a directory just above your source directory
+
+T () 
+{ 
+    R=3.1.4
+    cd <stroom_auditd_agent_parent>
+    tar cfz stroom_auditd_agent-${R}.tar.gz stroom_auditd_agent-${R};
+    cp stroom_auditd_agent-${R}.tar.gz ~/rpmbuild/SOURCES;
+    cp stroom_auditd_agent-${R}/stroom_auditd.spec ~/rpmbuild/SPECS;
+    cd ~/rpmbuild;
+    rpmbuild -ba --target=noarch --define 'dist .el7' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' SPECS/stroom_auditd.spec
+    rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' SPECS/stroom_auditd.spec
+    rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' SPECS/stroom_auditd.spec
+}
+
+# By default, the built agents will post collected audit events to the url
+#   'https://stroom-proxy00.somedomain.org/stroom/datafeed'
+# and will not set the 'mySecZone' http header variable in the post.
+#
+# The purpose of the mySecZone http header variable is to allow one
+# to establish regions or zones for the systems. For example, one could
+# set 'mySecZone' to NSW or VIC to indicate the system is in New South Wales or Victoria
+# or to some other appropriate domain.
+#
+# To set the destination hostname to say, yourdestinationhostname, add the rpmbuild argument
+#   --define '_dst yourdestinationhostname'
+# To set the destination security domain to say, "California USA", add the rpmbuild argument 
+#   -define '_sz_verbose "California USA"'
+#
+# Further, if you wish to identify your purpose built nodes, you can use the additional define _sz
+# to specify a release name. That is the RPM release will be the concatenation of
+# the _sz variable (should start with a .) and the distribution variable 'dist'
+# So, to set the release name to .nsw.el8 have the pair of defines
+#   -define 'dist .el8' --define '_sz .nsw'
+
+# For example, we will build an rpm release for both el8 and el9 for four security zones. The table below indicates the
+# zones and their Stroom Web Proxy address
+
+# Zone Abbreviation   Well Known Zone Name    URL
+# dx0                 DX0                     https://saproxy.audit.dx0.mynet.org/stroom/datafeed
+# dx3                 DX3                     https://saproxy.audit.dx3.mynet.org/stroom/datafeed
+# dx5                 DX5                     https://saproxy.audit.dx5.mynet.org/stroom/datafeed
+# dx9                 DX9                     https://saproxy.audit.dx9.mynet.org/stroom/datafeed
+
+# Assuming
+#   stroom_auditd_agent-3.1.4.tar.gz is in ~/rpmbuild/SOURCES
+#   stroom_auditd_agent-3.1.4/stroom_auditd.spec ~/rpmbuild/SPECS
+
+# The commands 
+cd ~/rpmbuild;
+rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx0.mynet.org/stroom/datafeed' --define '_sz .dx0' --define '_sz_verbose "DX0"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx3.mynet.org/stroom/datafeed' --define '_sz .dx3' --define '_sz_verbose "DX3"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx5.mynet.org/stroom/datafeed' --define '_sz .dx5' --define '_sz_verbose "DX5"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx9.mynet.org/stroom/datafeed' --define '_sz .dx9' --define '_sz_verbose "DX9"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx0.mynet.org/stroom/datafeed' --define '_sz .dx0' --define '_sz_verbose "DX0"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx3.mynet.org/stroom/datafeed' --define '_sz .dx3' --define '_sz_verbose "DX3"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx5.mynet.org/stroom/datafeed' --define '_sz .dx5' --define '_sz_verbose "DX5"' SPECS/stroom_auditd.spec
+rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx9.mynet.org/stroom/datafeed' --define '_sz .dx9' --define '_sz_verbose "DX9"' SPECS/stroom_auditd.spec
+
+# will result in rpms suitable for deploying in the appropriate zone, operating system version
+stroom_auditd_agent-3.1.4-0.dx0.el8.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx5.el8.noarch.rpm
+stroom_auditd_agent-3.1.4-0.dx0.el9.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx5.el9.noarch.rpm
+stroom_auditd_agent-3.1.4-0.dx3.el8.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx9.el8.noarch.rpm
+stroom_auditd_agent-3.1.4-0.dx3.el9.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx9.el9.noarch.rpm

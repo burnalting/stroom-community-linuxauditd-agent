@@ -1,0 +1,7 @@
+# Cron entry for Stroom auditd processing. We process every 10 minutes
+# To change this periodicity then change the
+#  10 to your periodicity in minutes
+#  work out the number of periodicity seconds and take 10 from them and specify that value on the
+#  command line with a '-d nsecs' ie for a 30 minute interval
+#  */30 * * * * root _AUDIT_ROOT_/bin/stroom_auditd_feeder.sh -d 1790 >> /var/log/stroom_auditd_auditing.log 2>&1
+*/10 * * * * root _AUDIT_ROOT_/bin/stroom_auditd_feeder.sh >> /var/log/stroom_auditd_auditing.log 2>&1

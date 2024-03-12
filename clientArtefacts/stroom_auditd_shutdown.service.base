@@ -1,0 +1,23 @@
+[Unit]
+Description=Invoke the stroom auditd agent service
+After=network.target
+Before=umount.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/true
+ExecStop=_AUDIT_ROOT_/bin/stroom_auditd_feeder.sh -f -n
+StandardOutput=append:/var/log/stroom_auditd_auditing.log
+StandardError=append:/var/log/stroom_auditd_auditing.log
+RemainAfterExit=yes
+# Apply the following if the need to transmit audit before reboot/shutdown/halt is very high
+# It is noted that the script, stroom_auditd_feeder.sh, will exit after three unsuccessful
+# attempts to post files in one execution.
+# Default is 90s found in /etc/systemd/system.conf 
+# TimeoutStopSec=360s
+
+[Install]
+WantedBy=reboot.target
+WantedBy=shutdown.target
+WantedBy=halt.target
+WantedBy=default.target

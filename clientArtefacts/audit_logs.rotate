@@ -1,0 +1,8 @@
+/var/log/stroom_auditd_auditing.log
+{
+    missingok
+    compress
+    notifempty
+    size 30k
+    rotate 7
+}

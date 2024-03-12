@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# chkconfig: 2345 12 89
+# description: Invoke the stroom auditd agent prior to shutdown
+
+# This script is present to ensure that when the system shuts down, we send audit to our central audit service
+# before the network goes down. Note that we accept that auditd stops at 88 and network at 90.
+# NOTE we do not perform a 'start' function, only stop
+
+rc=0
+prog=stroom_auditd_shutdown
+lockfile=/var/lock/subsys/$prog
+# See how we were called.
+case "$1" in
+  start)
+    # We touch the lockfile, so the stop execution will run
+    touch $lockfile
+    ;;
+  stop)
+    _AUDIT_ROOT_/bin/stroom_auditd_feeder.sh -f -n >> /var/log/stroom_auditd_auditing.log 2>&1
+    rc=$?
+    if [ $rc -eq 0 ]; then
+      rm -f $lockfile
+    fi
+    ;;
+  *) ;; # Silently ignore the rest
+esac
+
+exit $rc

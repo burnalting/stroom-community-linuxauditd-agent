@@ -1,0 +1,36 @@
+# _AUDIT_ROOT_/config - Configuration file for stroom_auditd_feeder.sh script
+
+# Use this file to override configuration environment variables in the stroom_auditd_feeder.sh script.
+# Although any variable in the script, before the sourcing of this configuration file, can be overridden here,
+# one would normally set the values for configuration items below.
+
+
+# SYSTEM    - The system the Linux host is deployed within or type of Linux host.
+#
+# The default for this item will either be "LinuxServer" or "LinuxWorkstation" (if X11 present). Equally one could
+# describe the complete system the capability resides within. For example
+#
+#   SYSTEM="Cross Domain Capability #1"
+
+# ENVIRONMENT   - The system environment the host is deployed within. Can be one of "Production", "QualityAssurance",
+#                 or "Development" 
+#
+# The default for this item is "Production". Clearly one can have other terms that suit one's organisational posture
+#
+#   ENVIRONMENT="Development"
+
+# URL   - A comma separated list Stroom urls where the script is to post the audit log files to.
+
+# The script will attempt to post the file to each url on the list until success or list exhaustion. This list is normally
+# provided by the Audit Authority. For example, 
+#
+#   URL=https://stroom-proxy00.somedomain.org/stroom/datafeed,https://stroom-proxy07.somedomain.org/stroom/datafeed
+
+# mySecZone - The 'Security zone' or environment of the capability.
+#
+# The default for this is "none". One could use this item to describe the security environment of where the host resides.
+# Security zones normally indicate the sensitivity of the deployed capability. 
+# 
+#    mySecZone="Cross Domain Capability #1 High Side Zone"
+
+
