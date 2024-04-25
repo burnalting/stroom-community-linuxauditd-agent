@@ -1,3 +1,5 @@
+# Release 2.1 20240414 Burn Alting, burn.alting@gmail.com
+#   - Support setting system and environment configuration items
 # Release 2.0 20231206 Burn Alting, burn.alting@gmail.com
 #   - Uplift to recent release 3.1.4
 # Release 1.0 20170520 Burn Alting
@@ -16,6 +18,9 @@
 #   rpmbuild -ba --define 'dist .el7' --define '_sz .dom2' --define '_dst stroomnode.mysub.myorg' --define '_sz_verbose "Domain #2"' SPECS/stroom_auditd.spec
 #   rpmbuild -ba --define 'dist .el8' --define '_sz .dom2' --define '_dst stroomnode.mysub.myorg' --define '_sz_verbose "Domain #2"' SPECS/stroom_auditd.spec
 #   rpmbuild -ba --define 'dist .el9' --define '_sz .dom2' --define '_dst stroomnode.mysub.myorg' --define '_sz_verbose "Domain #2"' SPECS/stroom_auditd.spec
+# Can additionally add defines for system and environment as per
+#  --define '_sys "This is my system"' --define '_env "PreProduction"'
+
 
 %define dist6 %(test 0"%{dist}" = 0.el6 && echo 1 || echo 0)
 %define dist7 %(test 0"%{dist}" = 0.el7 && echo 1 || echo 0)
@@ -23,7 +28,7 @@
 %define dist9 %(test 0"%{dist}" = 0.el9 && echo 1 || echo 0)
 
 Name: stroom_auditd_agent
-Version: 3.1.4
+Version: 3.1.5
 # Note we concatenate the domain and distribution
 Release: 0%{?_sz}%{?dist}
 Summary: This is the Stroom auditd collection agent
@@ -46,7 +51,7 @@ further format the ausearch output.
 %setup -q
 
 %build
-make %{?_smp_mflags} ARCH=%{arch_p} DIST=%{dist} DEST=%{_dst} SEC_ZONE=%{_sz_verbose} all
+make %{?_smp_mflags} ARCH=%{arch_p} DIST=%{dist} DEST=%{_dst} SEC_ZONE=%{_sz_verbose} ENV=%{_env} SYS=%{_sys} all
 
 %install
 AUDIT_ROOT=/opt/stroom/auditd
@@ -213,6 +218,8 @@ exit 0
 %endif
 
 %changelog
+* Sun Apr 14 2024 Burn Alting 3.1.5-0
+- New configuration options added (system and environment)
 * Wed Dec 06 2023 Burn Alting 3.1.4-0
 - Refreshed
 * Sat May 20 2017 Burn Alting 2.0.0-0

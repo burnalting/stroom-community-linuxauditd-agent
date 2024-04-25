@@ -1,7 +1,9 @@
-Last Update: 06 Dec 2023 Burn Alting, burn.alting@gmail.com
+Update: 14 Apr 2024 Burn Alting, burn.alting@gmail.com
+- Re-write section on changing configuration items at build time
+Update: 06 Dec 2023 Burn Alting, burn.alting@gmail.com
 - Uplift to latest version of the agent and newer Redhat releases
-
-Last Update: 22 May 2017 Burn Alting
+Update: 22 May 2017 Burn Alting
+- Initial Release
 
 This is a README describing how deploy a simple rpmbuild system for this stroom_audit_agent capability.
 
@@ -19,8 +21,8 @@ To create an rpm
 - cd ~/rpmbuild
 
 To cycle through a development process, the following function will build
-a number of standard targets (el7, el8 and el9). Note, you should change the cd command to change
-to a directory just above your source directory
+a number of standard targets (el7, el8 and el9) and configure posting details.
+Note, you should change the cd command to change to a directory just above your source directory
 
 T () 
 { 
@@ -30,57 +32,38 @@ T ()
     cp stroom_auditd_agent-${R}.tar.gz ~/rpmbuild/SOURCES;
     cp stroom_auditd_agent-${R}/stroom_auditd.spec ~/rpmbuild/SPECS;
     cd ~/rpmbuild;
-    rpmbuild -ba --target=noarch --define 'dist .el7' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' SPECS/stroom_auditd.spec
-    rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' SPECS/stroom_auditd.spec
-    rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' SPECS/stroom_auditd.spec
+    rpmbuild -ba --target=noarch --define 'dist .el7' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' --define '_env "Production"' --define '_sys "This is my system"' SPECS/stroom_auditd.spec
+    rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' --define '_env "Production"' --define '_sys "This is my system"' SPECS/stroom_auditd.spec
+    rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://stroom.a1959.org/stroom/datafeed' --define '_sz .nsw' --define '_sz_verbose "NSW State"' --define '_env "Production"' --define '_sys "This is my system"' SPECS/stroom_auditd.spec
 }
 
-# By default, the built agents will post collected audit events to the url
-#   'https://stroom-proxy00.somedomain.org/stroom/datafeed'
-# and will not set the 'mySecZone' http header variable in the post.
-#
-# The purpose of the mySecZone http header variable is to allow one
-# to establish regions or zones for the systems. For example, one could
-# set 'mySecZone' to NSW or VIC to indicate the system is in New South Wales or Victoria
-# or to some other appropriate domain.
-#
-# To set the destination hostname to say, yourdestinationhostname, add the rpmbuild argument
-#   --define '_dst yourdestinationhostname'
-# To set the destination security domain to say, "California USA", add the rpmbuild argument 
-#   -define '_sz_verbose "California USA"'
-#
-# Further, if you wish to identify your purpose built nodes, you can use the additional define _sz
-# to specify a release name. That is the RPM release will be the concatenation of
-# the _sz variable (should start with a .) and the distribution variable 'dist'
-# So, to set the release name to .nsw.el8 have the pair of defines
-#   -define 'dist .el8' --define '_sz .nsw'
+# The purpose of the defined variables on the rpmbuild command line are to effect the release distribution and
+# set system dependant configuration variables that control where event data is sent and specify source system
+# descriptors such as the System Name, Environment categorisation (Production, Development) and source system
+# location or security zone.
 
-# For example, we will build an rpm release for both el8 and el9 for four security zones. The table below indicates the
-# zones and their Stroom Web Proxy address
-
-# Zone Abbreviation   Well Known Zone Name    URL
-# dx0                 DX0                     https://saproxy.audit.dx0.mynet.org/stroom/datafeed
-# dx3                 DX3                     https://saproxy.audit.dx3.mynet.org/stroom/datafeed
-# dx5                 DX5                     https://saproxy.audit.dx5.mynet.org/stroom/datafeed
-# dx9                 DX9                     https://saproxy.audit.dx9.mynet.org/stroom/datafeed
-
-# Assuming
-#   stroom_auditd_agent-3.1.4.tar.gz is in ~/rpmbuild/SOURCES
-#   stroom_auditd_agent-3.1.4/stroom_auditd.spec ~/rpmbuild/SPECS
-
-# The commands 
-cd ~/rpmbuild;
-rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx0.mynet.org/stroom/datafeed' --define '_sz .dx0' --define '_sz_verbose "DX0"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx3.mynet.org/stroom/datafeed' --define '_sz .dx3' --define '_sz_verbose "DX3"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx5.mynet.org/stroom/datafeed' --define '_sz .dx5' --define '_sz_verbose "DX5"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el8' --define '_dst https://saproxy.audit.dx9.mynet.org/stroom/datafeed' --define '_sz .dx9' --define '_sz_verbose "DX9"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx0.mynet.org/stroom/datafeed' --define '_sz .dx0' --define '_sz_verbose "DX0"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx3.mynet.org/stroom/datafeed' --define '_sz .dx3' --define '_sz_verbose "DX3"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx5.mynet.org/stroom/datafeed' --define '_sz .dx5' --define '_sz_verbose "DX5"' SPECS/stroom_auditd.spec
-rpmbuild -ba --target=noarch --define 'dist .el9' --define '_dst https://saproxy.audit.dx9.mynet.org/stroom/datafeed' --define '_sz .dx9' --define '_sz_verbose "DX9"' SPECS/stroom_auditd.spec
-
-# will result in rpms suitable for deploying in the appropriate zone, operating system version
-stroom_auditd_agent-3.1.4-0.dx0.el8.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx5.el8.noarch.rpm
-stroom_auditd_agent-3.1.4-0.dx0.el9.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx5.el9.noarch.rpm
-stroom_auditd_agent-3.1.4-0.dx3.el8.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx9.el8.noarch.rpm
-stroom_auditd_agent-3.1.4-0.dx3.el9.noarch.rpm  stroom_auditd_agent-3.1.4-0.dx9.el9.noarch.rpm
+# The defines are
+# _dist
+#   to identify what release (.el7, .el8, etc) the rpm will be built for
+# _dst 
+#   to specify a destination URL or URL csv list to post the event data to
+#       The script will itterate over each url in the list attempting to post until successful
+# _sz
+#   to specify the source system's security zone for labelling the rpm (e.g. .nsw, .vic)
+#       If you wish to identify your purpose built nodes, you can use the additional define _sz
+#       to specify a release name. That is the RPM release will be the concatenation of
+#       the _sz variable (should start with a .) and the distribution variable 'dist'
+#       So, to set the release name to .nsw.el8 have the pair of defines
+#           --define 'dist .el8' --define '_sz .nsw'
+# _sz_verbose
+#   to specify a verbose version of the source system's security zone that will be provided with the post in the mySecZone http header variable
+#       The purpose of the mySecZone http header variable is to allow one
+#       to establish regions or zones for the systems. For example, one could
+#       set 'mySecZone' to NSW or VIC to indicate the system is in New South Wales or Victoria
+#       or to some other appropriate domain.
+# _sys
+#   to specify the source system's descriptive name (e.g. "Company Finance System") that will be provided with the post in the SYSTEM http header variable
+#       The purpose of the SYSTEM http header variable is to allow those reviewing the logs in a cental log management system to get context about the source system.
+# _env
+#   to specify the soruce system's operating environment (e.g. Production, Development, etc) that will be provided with the post in the ENVIRONMENT http header variable
+#       The purpose of the ENVIRONMENT http header variable is to allow those reviewing the logs in a cental log management system to further categorise the source system's context.

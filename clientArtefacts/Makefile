@@ -1,6 +1,8 @@
 # Makefile for Stroom Auditd Collection agent
 #
 # Changelog
+# - Update 20240414, BurnAlting burn.alting@gmail.com
+#   - Extend configuration changes to all current items in the configuration file
 # - Update 20231206, BurnAlting burn.alting@gmail.com
 #   - Include the configuration file stroom_auditd_feeder.config.base deployment
 #   - Make configuration changes in configuration file, not the script
@@ -16,26 +18,22 @@ AUDIT_ROOT=/opt/stroom/auditd
 # 
 
 all:
-ifeq ($(DEST),)
 	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_feeder.sh.base > stroom_auditd_feeder.sh
 	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd.crontab.base > stroom_auditd.crontab
 	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_shutdown.init.d.base > stroom_auditd_shutdown.init.d
 	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_shutdown.service.base > stroom_auditd_shutdown.service
 	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_feeder.config.base > stroom_auditd_feeder.config
-else
-ifeq ($(SEC_ZONE),)
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_feeder.sh.base > stroom_auditd_feeder.sh
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd.crontab.base > stroom_auditd.crontab
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_shutdown.init.d.base > stroom_auditd_shutdown.init.d
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_shutdown.service.base > stroom_auditd_shutdown.service
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" -e "/https:\/\/stroom-proxy00.somedomain.org\/stroom\/datafeed,https:\/\//a URL=$(DEST)" stroom_auditd_feeder.config.base > stroom_auditd_feeder.config
-else
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_feeder.sh.base > stroom_auditd_feeder.sh
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd.crontab.base > stroom_auditd.crontab
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_shutdown.init.d.base > stroom_auditd_shutdown.init.d
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" stroom_auditd_shutdown.service.base > stroom_auditd_shutdown.service
-	sed -e "s+_AUDIT_ROOT_+$(AUDIT_ROOT)+" -e "/https:\/\/stroom-proxy00.somedomain.org\/stroom\/datafeed,https:\/\//a URL=$(DEST)" -e "/mySecZone=/a mySecZone=\"$(SEC_ZONE)\"" stroom_auditd_feeder.config.base > stroom_auditd_feeder.config
+ifneq ($(SEC_ZONE),)
+	sed -i -e "/mySecZone=/a mySecZone=\"$(SEC_ZONE)\"" stroom_auditd_feeder.config
 endif
+ifneq ($(DEST),)
+	sed -i -e "/https:\/\/stroom-proxy00.somedomain.org\/stroom\/datafeed,https:\/\//a URL=$(DEST)" stroom_auditd_feeder.config
+endif
+ifneq ($(SYS),)
+	sed -i -e "/SYSTEM=/a SYSTEM=\"$(SYS)\"" stroom_auditd_feeder.config
+endif
+ifneq ($(ENV),)
+	sed -i -e "/ENVIRONMENT=/a ENVIRONMENT=\"$(ENV)\"" stroom_auditd_feeder.config
 endif
 
 clean:
